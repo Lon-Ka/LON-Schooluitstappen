@@ -1700,6 +1700,18 @@ async function boot() {
       msalInstance.setActiveAccount(redirectResult.account);
     }
 
+    // Portaal token bridge
+    if (window._portalToken) {
+      const accs = msalInstance.getAllAccounts();
+      const acc = accs[0];
+      S.userEmail = acc ? acc.username : (window._portalEmail || '');
+      S.userDisplayName = acc ? (acc.name || acc.username) : S.userEmail;
+      window._appBooted = true;
+      if (window.self !== window.top) document.body.classList.add('in-portal');
+      await _bootLoadUser(S.userEmail);
+      return;
+    }
+
     let account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
     if (!account) {
       S.loginError = null;
