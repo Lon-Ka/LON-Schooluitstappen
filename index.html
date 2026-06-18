@@ -195,6 +195,20 @@ input, select, textarea, button { font-family: inherit; }
   .print-header { display: block !important; font-size: 9pt; color: #666; margin-bottom: 8pt; border-bottom: 1pt solid #ddd; padding-bottom: 4pt; text-align: right; }
 }
 </style>
+<script>
+window._portalToken = null;
+window._portalEmail = '';
+window._appBooted = false;
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://lon-ka.github.io') return;
+  if (!event.data || event.data.type !== 'MSAL_TOKEN') return;
+  if (window._portalToken) return;
+  window._portalToken = event.data.token;
+  window._portalEmail = event.data.email || '';
+  if (!window._appBooted) boot();
+});
+
+</script>
 </head>
 <body>
 
@@ -288,7 +302,7 @@ class Zn{constructor(e,r){this.cacheOutcome=he,this.cacheManager=r,this.apiId=e.
 //  ⚙️ CONFIG — Vul hier jouw M365-gegevens in
 // ════════════════════════════════════════════════════════════════
 const CONFIG = {
-  clientId:     '1ec98f18-ab8a-402d-a85f-bd9997893817',
+  clientId:     '481e8cb4-58ca-49b1-bb8b-5b02cbb45b4c',
   tenantId:     '655d15e1-e5fc-4868-8462-8463dc0ff014',
   siteId:       'londerwijs.sharepoint.com:/sites/BaO-Schooluitstappen',
   lijstIds: {
