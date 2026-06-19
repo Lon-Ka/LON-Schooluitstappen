@@ -23,7 +23,7 @@ input, select, textarea, button { font-family: inherit; }
 .school-pick-card .spc-icon { font-size: 26px; margin-bottom: 8px; }
 .school-pick-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
 .school-pick-card p  { font-size: 11px; color: #aaa; }
-.btn-logout-splash { background: none; border: 1px solid #D5D5CC; padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; color: #666; margin-top: 8px; }
+
 
 /* Nav */
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 11px 24px; background: white; border-bottom: 1px solid #E5E5DF; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.05); gap: 10px; flex-wrap: wrap; }
@@ -194,6 +194,31 @@ input, select, textarea, button { font-family: inherit; }
   .stats-row, .filter-row { display: none !important; }
   .print-header { display: block !important; font-size: 9pt; color: #666; margin-bottom: 8pt; border-bottom: 1pt solid #ddd; padding-bottom: 4pt; text-align: right; }
 }
+
+/* ── HELP DRAWER ─────────────────────────────────────── */
+.help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:9000;opacity:0;pointer-events:none;transition:opacity .25s}
+.help-overlay.on{opacity:1;pointer-events:all}
+.help-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100vw);background:white;z-index:9001;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.15)}
+.help-drawer.on{transform:translateX(0)}
+.help-hdr{color:white;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.help-hdr h2{font-size:15px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px}
+.help-close{background:rgba(255,255,255,.2);border:none;border-radius:8px;color:white;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .15s;flex-shrink:0}
+.help-close:hover{background:rgba(255,255,255,.35)}
+.help-nav{display:flex;border-bottom:1px solid #E8E5DC;flex-shrink:0;overflow-x:auto}
+.help-tab{padding:10px 14px;font-size:12px;font-weight:600;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .15s}
+.help-tab:hover{color:#333}
+.help-body{flex:1;overflow-y:auto;padding:1.25rem}
+.help-section{display:none}.help-section.active{display:block}
+.help-section h3{font-size:14px;font-weight:700;margin:0 0 .5rem;display:flex;align-items:center;gap:6px}
+.help-section h4{font-size:11px;font-weight:700;color:#555;margin:.9rem 0 .3rem;text-transform:uppercase;letter-spacing:.04em}
+.help-section p{font-size:13px;color:#444;line-height:1.65;margin:0 0 .75rem}
+.help-section ul{margin:.25rem 0 .75rem;padding-left:1.25rem}
+.help-section li{font-size:13px;color:#444;line-height:1.65;margin-bottom:.25rem}
+.help-tip{border-left:3px solid #888;border-radius:0 8px 8px 0;padding:.6rem .85rem;margin:.75rem 0;font-size:12px;line-height:1.55;background:#F8F7F4;color:#444}
+.help-step{display:flex;gap:.75rem;margin-bottom:.6rem}
+.help-step-nr{flex-shrink:0;width:22px;height:22px;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:2px;background:#888}
+.help-step-txt{font-size:13px;color:#444;line-height:1.6}
+.help-footer{padding:.75rem 1.25rem;border-top:1px solid #E8E5DC;font-size:11px;color:#AAA;flex-shrink:0;text-align:center}
 </style>
 <script>
 window._portalToken = null;
@@ -800,7 +825,51 @@ function showVoorstelbrief() {
     '<p>Bij vragen kunt u terecht bij de leerkracht: ' + (t.aanvrager||'') + (t.contactV ? ' (' + t.contactV + ')' : '') + '</p>' +
     '<div class="sign"><p>Met vriendelijke groeten,</p><p><strong>' + (t.aanvrager||'De leerkracht') + '</strong><br>' + (sc.naam||'') + '</p></div>' +
     '<div class="footer">' + (nDir ? 'Directie: ' + nDir + '&emsp;&emsp;' : '') + (nSec ? 'Secretariaat: ' + nSec : '') + '</div>' +
-    '<script>window.onload=function(){window.print();}<\/script></body></html>';
+    '<script>window.onload=function(){window.print();}<\/script>
+<!-- HELP DRAWER -->
+<div class="help-overlay" id="helpOverlay" onclick="closeHelp()"></div>
+<div class="help-drawer" id="helpDrawer">
+  <div class="help-hdr" style="background:#1F4E79">
+    <h2>&#9432; Help &mdash; Schooluitstappen</h2>
+    <button class="help-close" onclick="closeHelp()">&#x2715;</button>
+  </div>
+  <div class="help-nav"><button class="help-tab  active" onclick="showHelpTab('algemeen',this)">Algemeen</button><button class="help-tab" onclick="showHelpTab('aanvraag',this)">Aanvraag</button><button class="help-tab" onclick="showHelpTab('goedkeuring',this)">Goedkeuring</button><button class="help-tab" onclick="showHelpTab('secretariaat',this)">Secretariaat</button></div>
+  <div class="help-body"><div class="help-section  active" id="help-algemeen">
+      <h3>&#128652; Over Schooluitstappen</h3>
+      <p>Met <strong>Schooluitstappen</strong> dien je uitstapken in, volg je de goedkeuringsstatus op en beheert het secretariaat de planning.</p>
+      <div class="help-tip"><strong>Toegang:</strong> enkel via het portaal.</div>
+      <h4>Driefasige workflow</h4>
+      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt"><strong>Aanvraag:</strong> leerkracht dient uitstap in</div></div>
+      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt"><strong>Goedkeuring:</strong> directeur keurt goed of af</div></div>
+      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt"><strong>Verwerking:</strong> secretariaat verwerkt en plant in</div></div></div><div class="help-section" id="help-aanvraag">
+      <h3>&#128221; Uitstap aanvragen</h3>
+      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Klik op <strong>+ Nieuwe uitstap</strong></div></div>
+      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Vul naam, datum, bestemming en klassen in</div></div>
+      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Voeg vervoer, kosten en begeleidende leerkrachten toe</div></div>
+      <div class="help-step"><div class="help-step-nr">4</div><div class="help-step-txt">Dien in — de directeur ontvangt automatisch een melding</div></div>
+      <div class="help-tip"><strong>Tip:</strong> dien uitstappen minstens 4 weken op voorhand in zodat de directeur tijdig kan goedkeuren.</div>
+      <h4>Status opvolgen</h4>
+      <p>Via <strong>Mijn uitstappen</strong> volg je de status op: ingediend → in behandeling → goedgekeurd / afgewezen.</p></div><div class="help-section" id="help-goedkeuring">
+      <h3>&#10003; Goedkeuring (directeur)</h3>
+      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Open het tabblad <strong>Te beoordelen</strong></div></div>
+      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Klik op een uitstap om details te bekijken</div></div>
+      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Keur goed of af, voeg eventueel een opmerking toe</div></div>
+      <div class="help-tip"><strong>Bij afwijzing:</strong> voeg altijd een reden toe zodat de leerkracht de aanvraag kan aanpassen en opnieuw indienen.</div></div><div class="help-section" id="help-secretariaat">
+      <h3>&#128203; Verwerking (secretariaat)</h3>
+      <p>Na goedkeuring verschijnt de uitstap in het secretariaatsoverzicht.</p>
+      <h4>Taken secretariaat</h4>
+      <ul>
+        <li>Vervoer bevestigen en bestellen</li>
+        <li>Toestemmingsbrieven genereren</li>
+        <li>Betaling opvolgen</li>
+        <li>Uitstap opnemen in de schoolkalender</li>
+      </ul>
+      <h4>Overzicht per klasse</h4>
+      <p>Het klasrooster toont per klas alle geplande uitstappen in een kalenderweergave.</p></div></div>
+  <div class="help-footer">Scholengroep Londerzeel BaO — ict@centrumschool.londerzeel.be</div>
+</div>
+
+</body></html>';
 
   const win = window.open('', '_blank', 'width=800,height=600');
   if (win) { win.document.write(brief); win.document.close(); }
@@ -836,7 +905,7 @@ function render() {
     return;
   }
   if (S.view==='error') {
-    app.innerHTML = '<div class="splash"><div class="splash-logo">&#10060;</div><h2>Aanmelding mislukt</h2><p>'+esc(S.errorMsg)+'</p><button class="btn btn-primary" onclick="boot()">Opnieuw proberen</button><button class="btn-logout-splash" onclick="doLogout()">Afmelden</button></div>';
+    app.innerHTML = '<div class="splash"><div class="splash-logo">&#10060;</div><h2>Aanmelding mislukt</h2><p>'+esc(S.errorMsg)+'</p><button class="btn btn-primary" onclick="boot()">Opnieuw proberen</button></div>';
     return;
   }
   if (S.view==='login-prompt') {
@@ -852,15 +921,14 @@ function render() {
     return;
   }
   if (S.view==='not-found') {
-    app.innerHTML = '<div class="splash"><div class="splash-logo">&#128274;</div><h2>Geen toegang</h2><p>Je account (<strong>'+esc(S.userEmail)+'</strong>) is niet gevonden in de gebruikerslijst.<br><br>Neem contact op met de IT-verantwoordelijke om je toe te voegen.</p><button class="btn-logout-splash" onclick="doLogout()">Afmelden</button></div>';
+    app.innerHTML = '<div class="splash"><div class="splash-logo">&#128274;</div><h2>Geen toegang</h2><p>Je account (<strong>'+esc(S.userEmail)+'</strong>) is niet gevonden in de gebruikerslijst.<br><br>Neem contact op met de IT-verantwoordelijke om je toe te voegen.</p></div>';
     return;
   }
   if (S.view==='school-pick') {
     const splash = document.createElement('div');
     splash.className = 'splash';
-    splash.innerHTML = '<div class="splash-logo">&#128652;</div><h2>Kies je school</h2><p>Je bent gekoppeld aan meerdere scholen. Kies waarvoor je nu werkt.</p><div class="school-picker" id="spgrid"></div><button class="btn-logout-splash" id="splogout">Afmelden</button>';
+    splash.innerHTML = '<div class="splash-logo">&#128652;</div><h2>Kies je school</h2><p>Je bent gekoppeld aan meerdere scholen. Kies waarvoor je nu werkt.</p><div class="school-picker" id="spgrid"></div>';
     app.innerHTML = ''; app.appendChild(splash);
-    document.getElementById('splogout').addEventListener('click', doLogout);
     const spgrid = document.getElementById('spgrid');
     S.userScholen.forEach(g => {
       const sc = Object.values(SCHOOLS).find(s => s.naam === g.school) || {};
@@ -956,7 +1024,6 @@ function renderNav() {
       '<button class="btn btn-refresh btn-sm" onclick="refreshTrips()">&#8635; Vernieuwen</button>'+
       '<button class="btn btn-settings btn-sm" onclick="goSettings()">&#9881;&#65039; Instellingen</button>'+
       (S.userScholen.length>1?'<button class="btn btn-ghost btn-sm" onclick="S.view=\'school-pick\';render()">&#8646; School</button>':'')+
-      '<button class="btn btn-ghost btn-sm" onclick="doLogout()">&#8617; Afmelden</button>'+
       (!isConfigured?'<span style="font-size:10px;background:#FFF8ED;color:#7A4800;border:1px solid #F0C060;padding:3px 8px;border-radius:8px;font-weight:600">'+(isLocalFile?'LOKAAL (file://)':'LOKAAL')+'</span>':'')+
     '</div>'+
     '</nav>';
@@ -1041,7 +1108,7 @@ function renderDashboard() {
   filt.forEach(trip=>{
     html+='<div class="trip-card" onclick="goDetail(\''+trip.id+'\')">'+
       '<div class="trip-icon">&#128205;</div>'+
-      '<div class="trip-info"><div class="trip-title">'+esc(trip.activiteit)+'</div><div class="trip-sub">'+esc(trip.klas)+' &middot; '+trip.lln+' lln &middot; '+esc(trip.aanvrager)+'</div></div>'+
+      '<div class="trip-info"><div class="trip-title">'+esc(trip.activiteit)+'</div><div class="trip-sub">'+esc(trip.klas)+' &middot; '+trip.lln+' lln &middot; '+esc(trip.aanvrager)+'<button onclick="openHelp()" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:white;width:34px;height:34px;cursor:pointer;font-size:17px">?</button>'+'</div></div>'+
       '<div class="trip-right">'+badge(trip.status)+'<div class="trip-date">'+fd(trip.datum)+'</div></div>'+
     '</div>';
   });
@@ -1609,15 +1676,6 @@ async function doLogin() {
     msalInstance.setActiveAccount(loginResult.account);
 }
 
-async function doLogout() {
-  if (!isConfigured) {
-    _localSchool = null; S.school=null; S.rol=null; S.trips=[];
-    S.cfg={}; S.view='local-login'; render(); return;
-  }
-  const accounts=msalInstance.getAllAccounts();
-  if (accounts.length) await msalInstance.logoutRedirect({ account: accounts[0] });
-  S.view='loading'; S.school=null; S.rol=null; S.trips=[]; render(); location.reload();
-}
 
 async function pickSchool(school, rol, spId) {
   // school is the naam string from de Gebruikers-lijst — zoek het SCHOOLS-object op
@@ -1764,6 +1822,40 @@ if (document.readyState === 'loading') {
 } else {
   boot();
 }
+
+function openHelp(){
+  document.getElementById('helpOverlay').classList.add('on');
+  document.getElementById('helpDrawer').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeHelp(){
+  document.getElementById('helpOverlay').classList.remove('on');
+  document.getElementById('helpDrawer').classList.remove('on');
+  document.body.style.overflow='';
+}
+function showHelpTab(id,btn){
+  document.querySelectorAll('.help-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.help-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('help-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHelp();});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var topR = document.querySelector('.topbar-r');
+    if (topR && !document.getElementById('helpBtn')) {
+      var btn = document.createElement('button');
+      btn.id = 'helpBtn';
+      btn.innerHTML = '?';
+      btn.title = 'Help';
+      btn.onclick = openHelp;
+      btn.style.cssText = 'background:rgba(255,255,255,.15);border:none;border-radius:8px;color:white;width:34px;height:34px;cursor:pointer;font-size:17px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0';
+      topR.appendChild(btn);
+    }
+  }, 500);
+});
 </script>
 </body>
 </html>
