@@ -1722,7 +1722,15 @@ async function boot() {
       S.userDisplayName = acc ? (acc.name || acc.username) : S.userEmail;
       window._appBooted = true;
       if (window.self !== window.top) document.body.classList.add('in-portal');
-      await _bootLoadUser(S.userEmail);
+      // Gebruiker ophalen uit SharePoint (portaal bridge pad)
+      S.view = 'app-loading'; render();
+      const _puData = await graphGet(spItems(CONFIG.lijstIds.gebruikers));
+      const _puRows = (_puData.value||[]).filter(i=>i.fields&&i.fields.Title===S.userEmail&&i.fields.School&&i.fields.Rol);
+      if (!_puRows.length) { S.view='not-found'; render(); return; }
+      S.userScholen = _puRows.map(i=>({ school:i.fields.School, rol:i.fields.Rol, spId:i.id }));
+      if (S.userScholen.length===1) {
+        await pickSchool(S.userScholen[0].school, S.userScholen[0].rol, S.userScholen[0].spId);
+      } else { S.view='school-pick'; render(); }
       return;
     }
 
