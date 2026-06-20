@@ -439,6 +439,7 @@ const graphScopes = { scopes: ['User.Read', 'Sites.ReadWrite.All'] };
 
 // ─── Graph API helpers ────────────────────────────────────────────────────────
 async function getToken() {
+  if (window._portalToken) return window._portalToken;
   const accounts = msalInstance.getAllAccounts();
   if (!accounts.length) throw new Error('Niet aangemeld');
   try {
