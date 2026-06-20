@@ -221,38 +221,12 @@ input, select, textarea, button { font-family: inherit; }
 .help-footer{padding:.75rem 1.25rem;border-top:1px solid #E8E5DC;font-size:11px;color:#AAA;flex-shrink:0;text-align:center}
 </style>
 <script>
-// Verplicht gebruik via MijnDigiLoket portaal
 if (window.self === window.top) {
-    document.addEventListener('DOMContentLoaded', function() {
-        document.body.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center;
-                        justify-content:center; height:100vh; font-family:'Segoe UI',sans-serif;
-                        background:#F5F7FA; text-align:center; padding:20px;">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" style="margin-bottom:24px;">
-                    <rect width="64" height="64" rx="16" fill="#0D1B2A"/>
-                    <rect x="12" y="12" width="16" height="16" rx="4" fill="#1A6BB5"/>
-                    <rect x="36" y="12" width="16" height="16" rx="4" fill="#1F4E79"/>
-                    <rect x="12" y="36" width="16" height="16" rx="4" fill="#C05A1A"/>
-                    <rect x="36" y="36" width="16" height="16" rx="4" fill="#6B7A8D"/>
-                </svg>
-                <h2 style="margin:0 0 8px; font-size:1.4rem; color:#1C2B3A;">
-                    Toegang via portaal vereist
-                </h2>
-                <p style="margin:0 0 28px; color:#6B7A8D; max-width:360px; line-height:1.5;">
-                    Deze applicatie is enkel beschikbaar via het MijnDigiLoket portaal.
-                </p>
-                <a href="https://lon-ka.github.io/LON-portaal/"
-                   style="display:inline-flex; align-items:center; gap:10px;
-                          padding:14px 28px; background:#0D1B2A; color:#fff;
-                          text-decoration:none; border-radius:10px; font-weight:600;
-                          font-size:.95rem;">
-                    Naar MijnDigiLoket
-                </a>
-            </div>`;
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Segoe UI,sans-serif;background:#F5F7FA;text-align:center;padding:20px"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" style="margin-bottom:24px"><rect width="64" height="64" rx="16" fill="#0D1B2A"/><rect x="12" y="12" width="16" height="16" rx="4" fill="#1A6BB5"/><rect x="36" y="12" width="16" height="16" rx="4" fill="#1F4E79"/><rect x="12" y="36" width="16" height="16" rx="4" fill="#C05A1A"/><rect x="36" y="36" width="16" height="16" rx="4" fill="#6B7A8D"/></svg><h2 style="margin:0 0 8px;font-size:1.4rem;color:#1C2B3A">Toegang via portaal vereist</h2><p style="margin:0 0 28px;color:#6B7A8D;max-width:360px;line-height:1.5">Deze applicatie is enkel beschikbaar via het MijnDigiLoket portaal.</p><a href="https://lon-ka.github.io/LON-portaal/" style="display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:#0D1B2A;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:.95rem">Naar MijnDigiLoket</a></div>';
+  });
 }
 </script>
-
 <script>
 window._portalToken = null;
 window._portalEmail = '';
@@ -1756,7 +1730,6 @@ async function boot() {
       S.userDisplayName = acc ? (acc.name || acc.username) : S.userEmail;
       window._appBooted = true;
       if (window.self !== window.top) document.body.classList.add('in-portal');
-      // Gebruiker ophalen uit SharePoint (portaal bridge pad)
       S.view = 'app-loading'; render();
       const _puData = await graphGet(spItems(CONFIG.lijstIds.gebruikers));
       const _puRows = (_puData.value||[]).filter(i=>i.fields&&i.fields.Title===S.userEmail&&i.fields.School&&i.fields.Rol);
@@ -1821,28 +1794,25 @@ if (document.readyState === 'loading') {
   boot();
 }
 
-// ── HELP DRAWER ──────────────────────────────────────────
-function openHelp(){
-  document.getElementById('helpOverlay').classList.add('on');
-  document.getElementById('helpDrawer').classList.add('on');
-  document.body.style.overflow='hidden';
-}
-function closeHelp(){
-  document.getElementById('helpOverlay').classList.remove('on');
-  document.getElementById('helpDrawer').classList.remove('on');
-  document.body.style.overflow='';
-}
-function showHelpTab(id,btn){
-  document.querySelectorAll('.help-section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.help-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('help-'+id).classList.add('active');
-  btn.classList.add('active');
-}
+function openHelp(){document.getElementById('helpOverlay').classList.add('on');document.getElementById('helpDrawer').classList.add('on');document.body.style.overflow='hidden';}
+function closeHelp(){document.getElementById('helpOverlay').classList.remove('on');document.getElementById('helpDrawer').classList.remove('on');document.body.style.overflow='';}
+function showHelpTab(id,btn){document.querySelectorAll('.help-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.help-tab').forEach(t=>t.classList.remove('active'));document.getElementById('help-'+id).classList.add('active');btn.classList.add('active');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHelp();});
-window.addEventListener('message',function(event){
-  if(event.origin!=='https://lon-ka.github.io')return;
-  if(event.data&&event.data.type==='OPEN_HELP')openHelp();
+
+document.addEventListener('DOMContentLoaded', function() {
+  window.addEventListener('message', function(event) {
+    if (event.origin !== 'https://lon-ka.github.io') return;
+    if (!event.data) return;
+    if (event.data.type === 'OPEN_HELP') { if(typeof openHelp==='function') openHelp(); return; }
+    if (event.data.type !== 'MSAL_TOKEN') return;
+    if (window._portalToken) return;
+    window._portalToken = event.data.token;
+    window._portalEmail = event.data.email || '';
+    if (!window._appBooted && typeof boot==='function') boot();
+  });
 });
+
+
 document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){
     var topR=document.querySelector('.topbar-r');
@@ -1863,51 +1833,8 @@ document.addEventListener('DOMContentLoaded',function(){
     <h2>&#9432; Help &mdash; Schooluitstappen</h2>
     <button class="help-close" onclick="closeHelp()">&#x2715;</button>
   </div>
-  <div class="help-nav">
-    <button class="help-tab active" onclick="showHelpTab('algemeen',this)">Algemeen</button>
-    <button class="help-tab" onclick="showHelpTab('aanvraag',this)">Aanvraag</button>
-    <button class="help-tab" onclick="showHelpTab('goedkeuring',this)">Goedkeuring</button>
-    <button class="help-tab" onclick="showHelpTab('secretariaat',this)">Secretariaat</button>
-  </div>
-  <div class="help-body">
-    <div class="help-section active" id="help-algemeen">
-      <h3 style="color:#1F4E79">&#128652; Over Schooluitstappen</h3>
-      <p>Met <strong>Schooluitstappen</strong> dien je uitstappen in, volg je de goedkeuringsstatus op en beheert het secretariaat de planning.</p>
-      <div class="help-tip"><strong>Toegang:</strong> enkel via het portaal.</div>
-      <h4>Driefasige workflow</h4>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">1</div><div class="help-step-txt"><strong>Aanvraag:</strong> leerkracht dient uitstap in</div></div>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">2</div><div class="help-step-txt"><strong>Goedkeuring:</strong> directeur keurt goed of af</div></div>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">3</div><div class="help-step-txt"><strong>Verwerking:</strong> secretariaat verwerkt en plant in</div></div>
-    </div>
-    <div class="help-section" id="help-aanvraag">
-      <h3 style="color:#1F4E79">&#128221; Uitstap aanvragen</h3>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">1</div><div class="help-step-txt">Klik op <strong>+ Nieuwe uitstap</strong></div></div>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">2</div><div class="help-step-txt">Vul naam, datum, bestemming en klassen in</div></div>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">3</div><div class="help-step-txt">Voeg vervoer, kosten en begeleiding toe</div></div>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">4</div><div class="help-step-txt">Dien in — directeur ontvangt automatisch een melding</div></div>
-      <div class="help-tip"><strong>Tip:</strong> dien minstens 4 weken op voorhand in.</div>
-    </div>
-    <div class="help-section" id="help-goedkeuring">
-      <h3 style="color:#1F4E79">&#10003; Goedkeuring (directeur)</h3>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">1</div><div class="help-step-txt">Open het tabblad <strong>Te beoordelen</strong></div></div>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">2</div><div class="help-step-txt">Klik op een uitstap om details te bekijken</div></div>
-      <div class="help-step"><div class="help-step-nr" style="background:#1F4E79">3</div><div class="help-step-txt">Keur goed of af, voeg eventueel een opmerking toe</div></div>
-      <div class="help-tip"><strong>Bij afwijzing:</strong> voeg altijd een reden toe.</div>
-    </div>
-    <div class="help-section" id="help-secretariaat">
-      <h3 style="color:#1F4E79">&#128203; Verwerking (secretariaat)</h3>
-      <p>Na goedkeuring verschijnt de uitstap in het secretariaatsoverzicht.</p>
-      <h4>Taken</h4>
-      <ul>
-        <li>Vervoer bevestigen en bestellen</li>
-        <li>Toestemmingsbrieven genereren en afdrukken</li>
-        <li>Betaling opvolgen</li>
-        <li>Uitstap opnemen in de schoolkalender</li>
-      </ul>
-    </div>
-  </div>
+  <div class="help-nav"><button class="help-tab  active" onclick="showHelpTab('algemeen',this)">Algemeen</button><button class="help-tab" onclick="showHelpTab('aanvraag',this)">Aanvraag</button><button class="help-tab" onclick="showHelpTab('goedkeuring',this)">Goedkeuring</button><button class="help-tab" onclick="showHelpTab('secretariaat',this)">Secretariaat</button></div><div class="help-body"><div class="help-section  active" id="help-algemeen"><h3 style="color:#1F4E79">&#128652; Over Schooluitstappen</h3><p>Driefasige workflow: aanvraag → goedkeuring → verwerking. Enkel via het portaal.</p></div><div class="help-section" id="help-aanvraag"><h3 style="color:#1F4E79">&#128221; Uitstap aanvragen</h3><div class="help-step"><div class="help-step-nr" style="background:#1F4E79">1</div><div class="help-step-txt">Klik <strong>+ Nieuwe uitstap</strong></div></div><div class="help-step"><div class="help-step-nr" style="background:#1F4E79">2</div><div class="help-step-txt">Vul naam, datum, bestemming en klassen in</div></div><div class="help-step"><div class="help-step-nr" style="background:#1F4E79">3</div><div class="help-step-txt">Voeg vervoer, kosten en begeleiding toe</div></div><div class="help-step"><div class="help-step-nr" style="background:#1F4E79">4</div><div class="help-step-txt">Dien in — directeur ontvangt melding</div></div><div class="help-tip">Dien minstens 4 weken op voorhand in.</div></div><div class="help-section" id="help-goedkeuring"><h3 style="color:#1F4E79">&#10003; Goedkeuring</h3><div class="help-step"><div class="help-step-nr" style="background:#1F4E79">1</div><div class="help-step-txt">Open <strong>Te beoordelen</strong></div></div><div class="help-step"><div class="help-step-nr" style="background:#1F4E79">2</div><div class="help-step-txt">Bekijk details</div></div><div class="help-step"><div class="help-step-nr" style="background:#1F4E79">3</div><div class="help-step-txt">Keur goed of af met opmerking</div></div></div><div class="help-section" id="help-secretariaat"><h3 style="color:#1F4E79">&#128203; Verwerking</h3><ul><li>Vervoer bevestigen</li><li>Toestemmingsbrieven afdrukken</li><li>Betaling opvolgen</li><li>Opnemen in schoolkalender</li></ul></div></div>
   <div class="help-footer">Scholengroep Londerzeel BaO — ict@centrumschool.londerzeel.be</div>
 </div>
-
 </body>
 </html>
